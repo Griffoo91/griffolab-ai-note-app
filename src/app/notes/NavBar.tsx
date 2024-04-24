@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import Logo from "@/assets/Griffobg0.png";
 import { UserButton } from "@clerk/nextjs";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function NavBar() {
   return (
@@ -18,6 +20,10 @@ export default function NavBar() {
               elements: { avatarBox: { width: "2.5rem", height: "2.5rem" } },
             }}
           />
+          <Button>
+            <Plus size={20} className="mr-2"/>
+            Add Note
+          </Button>
         </div>
       </div>
     </div>
