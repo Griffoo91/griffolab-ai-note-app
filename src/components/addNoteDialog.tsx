@@ -11,6 +11,7 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 interface AddNoteDialogProps {
   open: boolean;
@@ -40,6 +41,19 @@ export default function AddNoteDialog({ open, setOpen }: AddNoteDialogProps) {
                   <FormLabel>Note title</FormLabel>
                   <FormControl>
                     <Input placeholder="Note title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="content"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Note content</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Note content" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
