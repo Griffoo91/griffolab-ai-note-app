@@ -26,14 +26,14 @@ export default function NavBar() {
               elements: { avatarBox: { width: "2.5rem", height: "2.5rem" } },
             }}
           />
-          <Button>
+          <Button onClick={() => setShowAddNoteDialog(true)}>
             <Plus size={20} className="mr-2"/>
             Add Note
           </Button>
         </div>
       </div>
     </div>
-    {showAddNoteDialog && <AddNoteDialog open={showAddNoteDialog} setOpen={setShowAddNoteDialog} />}
+    <AddNoteDialog open={showAddNoteDialog} setOpen={setShowAddNoteDialog} />
     </>
   );
 }
