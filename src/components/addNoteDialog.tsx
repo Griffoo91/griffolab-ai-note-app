@@ -19,21 +19,35 @@ import {
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import LoadingButton from "./ui/loading-button";
+import { useRouter } from "next/navigation";
 
 interface AddNoteDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 export default function AddNoteDialog({ open, setOpen }: AddNoteDialogProps) {
+  const router = useRouter();
   const form = useForm<CreateNoteSchema>({
     resolver: zodResolver(createNoteSchema),
     defaultValues: {
       title: "",
       content: "",
-    }
+    },
   });
   async function onSubmit(input: CreateNoteSchema) {
-    alert(JSON.stringify(input));
+    try {
+      const response = await fetch("/api/notes", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      if (!response.ok) throw Error("Status code: " + response.status);
+      form.reset();
+      router.refresh();
+      setOpen(false)
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again.");
+    }
   }
 
   return (
