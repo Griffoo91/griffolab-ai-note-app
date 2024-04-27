@@ -1,26 +1,23 @@
 import prisma from "@/lib/db/prisma";
 import { createNoteSchema } from "@/lib/validation/note";
 import { auth } from "@clerk/nextjs/server";
-import { NextApiRequest, NextApiResponse } from "next"
 
-export default async function postNoteHandler(req: NextApiRequest, res: NextApiResponse) {
-
-  
+export async function POST(req: Request) {
   try {
-    const body = await req.body;
+    const body = await req.json();
 
     const parseResult = createNoteSchema.safeParse(body);
 
     if (!parseResult.success) {
       console.error(parseResult.error);
-      return res.status(400).json({Error: "Invalid input"})
+      return Response.json({ error: "Invalid input" }, { status: 400 });
     }
 
     const { title, content } = parseResult.data;
     const { userId } = auth();
 
     if (!userId) {
-      return res.status(401).json({Error: "Unauthorised"})
+      return Response.json({ error: "Unauthorised" }, { status: 401 });
     }
 
     const note = await prisma.note.create({
@@ -31,11 +28,12 @@ export default async function postNoteHandler(req: NextApiRequest, res: NextApiR
       },
     });
 
-    return res.status(201).json({ note })
+    return Response.json({ note }, { status: 201 });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ Error: "Internal server error"})
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
 
 
