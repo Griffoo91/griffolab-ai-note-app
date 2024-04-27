@@ -1,3 +1,5 @@
+"use client";
+
 import { CreateNoteSchema, createNoteSchema } from "@/lib/validation/note";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +29,7 @@ interface AddNoteDialogProps {
 }
 export default function AddNoteDialog({ open, setOpen }: AddNoteDialogProps) {
   const router = useRouter();
+
   const form = useForm<CreateNoteSchema>({
     resolver: zodResolver(createNoteSchema),
     defaultValues: {
@@ -38,18 +41,21 @@ export default function AddNoteDialog({ open, setOpen }: AddNoteDialogProps) {
     try {
       const response = await fetch("/api/notes", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(input),
       });
-      if (!response.ok) throw Error("Status code: " + response.status);
+
+      if (!response.ok) throw new Error("Status code: " + response.status);
       form.reset();
       router.refresh();
-      setOpen(false)
+      router.push("/success");
     } catch (error) {
       console.error(error);
       alert("Something went wrong. Please try again.");
     }
   }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
