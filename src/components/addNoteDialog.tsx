@@ -38,6 +38,7 @@ export default function AddNoteDialog({ open, setOpen }: AddNoteDialogProps) {
     },
   });
   async function onSubmit(input: CreateNoteSchema) {
+  
     try {
       const response = await fetch("/api/notes", {
         method: "POST",

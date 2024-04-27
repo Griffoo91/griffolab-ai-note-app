@@ -4,6 +4,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next"
 
 export default async function postNoteHandler(req: NextApiRequest, res: NextApiResponse) {
+
+  
   try {
     const body = await req.body;
 
@@ -35,4 +37,5 @@ export default async function postNoteHandler(req: NextApiRequest, res: NextApiR
     return res.status(500).json({ Error: "Internal server error"})
   }
 }
+
 
