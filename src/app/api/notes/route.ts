@@ -86,7 +86,7 @@ export async function DELETE(req: Request) {
       return Response.json({ error: "Invalid input" }, { status: 400 });
     }
 
-    const { id, title, content} = parseResult.data;
+    const { id } = parseResult.data;
 
     const note = await prisma.note.findUnique({ where: { id } });
 
