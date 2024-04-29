@@ -27,10 +27,14 @@ import { Note } from "@prisma/client";
 interface AddEditNoteDialogProps {
   open: boolean;
   setOpen: (open: boolean) => void;
-  noteToEdit?: Note
+  noteToEdit?: Note;
 }
 
-export default function AddEditNoteDialog({ open, setOpen, noteToEdit }: AddEditNoteDialogProps) {
+export default function AddEditNoteDialog({
+  open,
+  setOpen,
+  noteToEdit,
+}: AddEditNoteDialogProps) {
   const router = useRouter();
 
   const form = useForm<CreateNoteSchema>({
@@ -41,8 +45,16 @@ export default function AddEditNoteDialog({ open, setOpen, noteToEdit }: AddEdit
     },
   });
   async function onSubmit(input: CreateNoteSchema) {
-  
-    try {
+    if (noteToEdit) {
+      const response = await fetch("api/notes", {
+        method: "PUT",
+        body: JSON.stringify({
+          id: noteToEdit.id,
+          ...input
+        })
+      })
+      if (response.ok) throw new Error("status code: "+ response.status)
+    } else {
       const response = await fetch("/api/notes", {
         method: "POST",
         headers: {
@@ -53,8 +65,11 @@ export default function AddEditNoteDialog({ open, setOpen, noteToEdit }: AddEdit
 
       if (!response.ok) throw new Error("Status code: " + response.status);
       form.reset();
+    }
+
+    try {
       router.refresh();
-      setOpen(false)
+      setOpen(false);
     } catch (error) {
       console.error(error);
       alert("Something went wrong. Please try again.");
