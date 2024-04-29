@@ -23,6 +23,7 @@ import { Textarea } from "./ui/textarea";
 import LoadingButton from "./ui/loading-button";
 import { useRouter } from "next/navigation";
 import { Note } from "@prisma/client";
+import { useState } from "react";
 
 interface AddEditNoteDialogProps {
   open: boolean;
@@ -35,6 +36,7 @@ export default function AddEditNoteDialog({
   setOpen,
   noteToEdit,
 }: AddEditNoteDialogProps) {
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
   const router = useRouter();
 
   const form = useForm<CreateNoteSchema>({
@@ -50,10 +52,10 @@ export default function AddEditNoteDialog({
         method: "PUT",
         body: JSON.stringify({
           id: noteToEdit.id,
-          ...input
-        })
-      })
-      if (response.ok) throw new Error("status code: "+ response.status)
+          ...input,
+        }),
+      });
+      if (response.ok) throw new Error("status code: " + response.status);
     } else {
       const response = await fetch("/api/notes", {
         method: "POST",
@@ -75,11 +77,32 @@ export default function AddEditNoteDialog({
       alert("Something went wrong. Please try again.");
     }
   }
+
+  async function deleteNote() {
+    if (!noteToEdit) return;
+    setDeleteInProgress(true);
+    try {
+      const response = await fetch("api/notes", {
+        method: "DELETE",
+        body: JSON.stringify({
+          id: noteToEdit.id,
+        }),
+      });
+      if (!response.ok) throw Error("Status code:" + response.status);
+      router.refresh();
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong. Please try again");
+    } finally {
+      setDeleteInProgress(false);
+    }
+  }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Notes</DialogTitle>
+          <DialogTitle>{noteToEdit? "Edit Note": "Add Note"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
@@ -109,10 +132,22 @@ export default function AddEditNoteDialog({
                 </FormItem>
               )}
             />
-            <DialogFooter>
+            <DialogFooter className="gap-1 sm:gap-0">
+              {noteToEdit && (
+                <LoadingButton
+                  variant="destructive"
+                  loading={deleteInProgress}
+                  disabled={form.formState.isSubmitting}
+                  onClick={deleteNote}
+                  type="button"
+                >
+                  Delete Note
+                </LoadingButton>
+              )}
               <LoadingButton
                 type="submit"
                 loading={form.formState.isSubmitting}
+                disabled={deleteInProgress}
               >
                 submit
               </LoadingButton>
