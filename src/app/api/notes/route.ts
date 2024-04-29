@@ -49,9 +49,9 @@ export async function PUT(req: Request) {
     const { id, title, content } = parseResult.data;
 
     const note = await prisma.note.findUnique({ where: { id } });
-
+    
     if (!note) {
-      return Response.json({ error: "note not found" }, { status: 404 });
+      return Response.json({ error: "Note not found" }, { status: 404 });
     }
 
     const { userId } = auth();
