@@ -56,7 +56,7 @@ export default function AddEditNoteDialog({
             ...input,
           }),
         });
-        if (response.ok) throw new Error("status code: " + response.status);
+        if (!response.ok) throw new Error("status code: " + response.status);
       } else {
         const response = await fetch("/api/notes", {
           method: "POST",
@@ -65,7 +65,7 @@ export default function AddEditNoteDialog({
           },
           body: JSON.stringify(input),
         });
-
+        
         if (!response.ok) throw new Error("Status code: " + response.status);
         form.reset();
       }
