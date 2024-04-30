@@ -47,29 +47,28 @@ export default function AddEditNoteDialog({
     },
   });
   async function onSubmit(input: CreateNoteSchema) {
-    if (noteToEdit) {
-      const response = await fetch("api/notes", {
-        method: "PUT",
-        body: JSON.stringify({
-          id: noteToEdit.id,
-          ...input,
-        }),
-      });
-      if (response.ok) throw new Error("status code: " + response.status);
-    } else {
-      const response = await fetch("/api/notes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(input),
-      });
-
-      if (!response.ok) throw new Error("Status code: " + response.status);
-      form.reset();
-    }
-
     try {
+      if (noteToEdit) {
+        const response = await fetch("/api/notes", {
+          method: "PUT",
+          body: JSON.stringify({
+            id: noteToEdit.id,
+            ...input,
+          }),
+        });
+        if (response.ok) throw new Error("status code: " + response.status);
+      } else {
+        const response = await fetch("/api/notes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(input),
+        });
+
+        if (!response.ok) throw new Error("Status code: " + response.status);
+        form.reset();
+      }
       router.refresh();
       setOpen(false);
     } catch (error) {
@@ -82,7 +81,7 @@ export default function AddEditNoteDialog({
     if (!noteToEdit) return;
     setDeleteInProgress(true);
     try {
-      const response = await fetch("api/notes", {
+      const response = await fetch("/api/notes", {
         method: "DELETE",
         body: JSON.stringify({
           id: noteToEdit.id,
@@ -102,7 +101,7 @@ export default function AddEditNoteDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{noteToEdit? "Edit Note": "Add Note"}</DialogTitle>
+          <DialogTitle>{noteToEdit ? "Edit Note" : "Add Note"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">

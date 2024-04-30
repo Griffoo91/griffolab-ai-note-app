@@ -56,7 +56,7 @@ export async function PUT(req: Request) {
 
     const { userId } = auth();
 
-    if (!userId || userId) {
+    if (!userId) {
       return Response.json({ error: "Unauthorised" }, { status: 401 });
     }
 
@@ -96,7 +96,7 @@ export async function DELETE(req: Request) {
 
     const { userId } = auth();
 
-    if (!userId || userId) {
+    if (!userId) {
       return Response.json({ error: "Unauthorised" }, { status: 401 });
     }
 
