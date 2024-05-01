@@ -1,5 +1,11 @@
+import { notesIndex } from "@/lib/db/pinecone";
 import prisma from "@/lib/db/prisma";
-import { createNoteSchema, deleteNoteSchema, updateNoteSchema } from "@/lib/validation/note";
+import { getEmbedding } from "@/lib/openai";
+import {
+  createNoteSchema,
+  deleteNoteSchema,
+  updateNoteSchema,
+} from "@/lib/validation/note";
 import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
@@ -20,12 +26,26 @@ export async function POST(req: Request) {
       return Response.json({ error: "Unauthorised" }, { status: 401 });
     }
 
-    const note = await prisma.note.create({
-      data: {
-        title,
-        content,
-        userId,
-      },
+    const embedding = await getEmbeddingForNote(title, content);
+
+    const note = await prisma.$transaction(async (tx) => {
+      const note = await tx.note.create({
+        data: {
+          title,
+          content,
+          userId,
+        },
+      });
+
+      await notesIndex.upsert([
+        {
+          id: note.id,
+          values: embedding,
+          metadata: { userId },
+        },
+      ]);
+
+      return note;
     });
 
     return Response.json({ note }, { status: 201 });
@@ -49,7 +69,7 @@ export async function PUT(req: Request) {
     const { id, title, content } = parseResult.data;
 
     const note = await prisma.note.findUnique({ where: { id } });
-    
+
     if (!note) {
       return Response.json({ error: "Note not found" }, { status: 404 });
     }
@@ -101,7 +121,7 @@ export async function DELETE(req: Request) {
     }
 
     await prisma.note.delete({
-      where: { id }
+      where: { id },
     });
 
     return Response.json({ message: "Note deleted" }, { status: 200 });
@@ -111,3 +131,6 @@ export async function DELETE(req: Request) {
   }
 }
 
+async function getEmbeddingForNote(title: string, content: string | undefined) {
+  return getEmbedding(title + "\n\n" + content ?? "");
+}
