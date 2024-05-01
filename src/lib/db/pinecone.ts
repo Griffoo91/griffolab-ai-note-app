@@ -6,6 +6,8 @@ if (!apiKey){
     throw Error("PINECONE_API_KEY is not set")
 }
 
-const apikey = new Pinecone({
+const pinecone = new Pinecone({
     apiKey,
 })
+
+export const notesIndex = pinecone.Index("griffolabnoteai")
